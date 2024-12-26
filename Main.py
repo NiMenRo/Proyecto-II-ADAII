@@ -12,7 +12,7 @@ def main():
         instance = Instance(solver, model)
 
         instance["num_existentes"] = data["num_existentes"]
-        instance["ubicaciones_existentes"] = data["ubicaciones_existentes"]  # Cambiado a arreglo bidimensional
+        instance["ubicaciones_existentes"] = data["ubicaciones_existentes"]
         instance["n"] = data["n"]
         instance["segmento_poblacion"] = data["segmento_poblacion"]
         instance["entorno_empresarial"] = data["entorno_empresarial"]
@@ -23,7 +23,7 @@ def main():
 
         print("\nContenido completo del resultado:\n")
         print(result)
-
+        
     except Exception as e:
         print(f"Error durante la ejecución: {e}")
 
