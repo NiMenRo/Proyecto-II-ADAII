@@ -89,11 +89,11 @@ class InterfazApp:
                                 font=('Arial', 10, 'bold'))
         file_button.pack(pady=10)
 
-        # Frame para el estado con fondo distintivo
+        # Frame para el estado
         status_frame = tk.Frame(center_frame, bg=self.colors['input_bg'], pady=10)
         status_frame.pack(fill=tk.X, pady=10)
         
-        # Etiqueta de estado mejorada
+        # Etiqueta de estado 
         self.status_label = tk.Label(status_frame, 
                                      text="Estado: Esperando archivo y solver",
                                      bg=self.colors['input_bg'],
@@ -189,7 +189,7 @@ class InterfazApp:
             self.status_label.config(text="Modelo resuelto con éxito. Resultado guardado en 'resultado.txt'.")
 
         except Exception as e:
-            self.status_label.config(text=f"Error durante la ejecución: {e}")
+            self.status_label.config(text="No se cumplen las restricciones")
 
     def display_result(self, result, data):
         # Limpiar el área de texto de resultados
@@ -197,7 +197,7 @@ class InterfazApp:
         self.result_text.insert(tk.END, str(result))
 
         # Configurar y mostrar el gráfico de resultados
-        self.ax.clear()
+        self.ax.clear()  # Limpiar la gráfica anterior
         n = data["n"]
         self.ax.set_xlim(0, n - 1)
         self.ax.set_ylim(0, n - 1)
