@@ -14,6 +14,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class InterfazApp:
     def __init__(self, root):
+        # Inicializar la ventana principal
         self.root = root
         self.root.title("Interfaz MiniZinc")
         self.root.geometry("900x900") 
@@ -198,8 +199,8 @@ class InterfazApp:
         # Configurar y mostrar el gráfico de resultados
         self.ax.clear()
         n = data["n"]
-        self.ax.set_xlim(0, n + 1)
-        self.ax.set_ylim(0, n + 1)
+        self.ax.set_xlim(0, n - 1)
+        self.ax.set_ylim(0, n - 1)
         self.ax.set_title("Ubicaciones propuestas", color=self.colors['text'], pad=20, fontsize=12)
         self.ax.set_xlabel("X", color=self.colors['text'], fontsize=10)
         self.ax.set_ylabel("Y", color=self.colors['text'], fontsize=10)
@@ -210,13 +211,18 @@ class InterfazApp:
         self.ax.spines['left'].set_color(self.colors['text'])
         self.ax.spines['right'].set_color(self.colors['text'])
 
+        # Configurar los ticks para que sean enteros
+        self.ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        self.ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
+
         # Dibujar puntos existentes y nuevos en el gráfico
         ubicaciones_existentes = data["ubicaciones_existentes"]
-        self.ax.scatter(ubicaciones_existentes, c=self.colors['accent'], label="Existentes", s=100)
+        for loc in ubicaciones_existentes:
+            self.ax.scatter(loc[1], loc[0], c=self.colors['accent'], label="Existentes", s=100)
 
-        x_nuevo = [int(var) for var in result["x_nuevo"]]
-        y_nuevo = [int(var) for var in result["y_nuevo"]]
-        self.ax.scatter(x_nuevo, y_nuevo, c=self.colors['highlight'], label="Nuevos", s=100)
+        ubicaciones_nuevas = result["ubicaciones_nuevas"]
+        for loc in ubicaciones_nuevas:
+            self.ax.scatter(loc[1], loc[0], c=self.colors['highlight'], label="Nuevos", s=100)
 
         self.ax.legend(facecolor=self.colors['bg'], labelcolor=self.colors['text'])
         self.canvas.draw()
