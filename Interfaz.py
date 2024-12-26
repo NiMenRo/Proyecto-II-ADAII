@@ -5,7 +5,6 @@ Víctor Manuel Hernandez - 2259520
 Esteban Alexander Revelo - 2067507
 """
 
-
 import tkinter as tk
 from tkinter import ttk, filedialog
 from minizinc import Instance, Model, Solver
@@ -55,7 +54,7 @@ class InterfazApp:
         title_frame = tk.Frame(center_frame, bg=self.colors['bg'])
         title_frame.pack(fill=tk.X, pady=(0, 20))
 
-        # Etiqueta de selección de solver con estilo mejorado
+        # Etiqueta de selección de solver
         solver_label = tk.Label(title_frame, 
                                 text="Seleccione el solucionador",
                                 bg=self.colors['bg'],
@@ -143,6 +142,7 @@ class InterfazApp:
         self.input_file = None
 
     def select_file(self):
+        # Abrir un cuadro de diálogo para seleccionar un archivo
         self.input_file = filedialog.askopenfilename(filetypes=[("Archivos de texto", "*.txt")])
         if self.input_file:
             self.status_label.config(text=f"Archivo seleccionado: {self.input_file}")
@@ -150,6 +150,7 @@ class InterfazApp:
             self.status_label.config(text="No se seleccionó ningún archivo")
 
     def run_model(self):
+        # Verificar si se ha seleccionado un archivo
         if not self.input_file:
             self.status_label.config(text="Por favor, seleccione un archivo de entrada primero.")
             return
@@ -159,12 +160,15 @@ class InterfazApp:
         self.root.update_idletasks()
 
         try:
+            # Leer los datos del archivo de entrada
             data = leer_entrada(self.input_file)
 
+            # Configurar el modelo y el solver
             model = Model("modelo.mzn")
             solver = Solver.lookup(solver_name)
             instance = Instance(solver, model)
 
+            # Asignar datos a la instancia del modelo
             instance["num_existentes"] = data["num_existentes"]
             instance["ubicaciones_existentes"] = data["ubicaciones_existentes"]
             instance["n"] = data["n"]
@@ -172,18 +176,26 @@ class InterfazApp:
             instance["entorno_empresarial"] = data["entorno_empresarial"]
             instance["num_nuevos"] = data["num_nuevos"]
 
+            # Resolver el modelo
             result = instance.solve()
 
+            # Guardar el resultado en un archivo de texto
+            with open("resultado.txt", "w") as result_file:
+                result_file.write(str(result))
+
+            # Mostrar los resultados
             self.display_result(result, data)
-            self.status_label.config(text="Modelo resuelto con éxito.")
+            self.status_label.config(text="Modelo resuelto con éxito. Resultado guardado en 'resultado.txt'.")
 
         except Exception as e:
             self.status_label.config(text=f"Error durante la ejecución: {e}")
 
     def display_result(self, result, data):
+        # Limpiar el área de texto de resultados
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, str(result))
 
+        # Configurar y mostrar el gráfico de resultados
         self.ax.clear()
         n = data["n"]
         self.ax.set_xlim(0, n + 1)
@@ -198,6 +210,7 @@ class InterfazApp:
         self.ax.spines['left'].set_color(self.colors['text'])
         self.ax.spines['right'].set_color(self.colors['text'])
 
+        # Dibujar puntos existentes y nuevos en el gráfico
         ubicaciones_existentes = data["ubicaciones_existentes"]
         self.ax.scatter(ubicaciones_existentes, c=self.colors['accent'], label="Existentes", s=100)
 
