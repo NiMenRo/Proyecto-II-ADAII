@@ -14,16 +14,14 @@ def leer_entrada(input):
     n = int(lines[num_existentes + 1].strip())
 
     segmento_poblacion = []  
-    for i in range(num_existentes + 2, num_existentes + 2 + n):
-        row = list(map(int, lines[i].split()))
-        segmento_poblacion.append(row)  
+    for line in lines[num_existentes + 2:num_existentes + 2 + n]:
+        segmento_poblacion.append(list(map(int, line.strip().split())))
 
     entorno_empresarial = []  
-    for i in range(num_existentes + 2 + n, num_existentes + 2 + n + n):
-        row = list(map(int, lines[i].split()))
-        entorno_empresarial.append(row)  
+    for line in lines[num_existentes + 2 + n:num_existentes + 2 + 2 * n]:
+        entorno_empresarial.append(list(map(int, line.strip().split()))) 
 
-    num_nuevos = int(lines[num_existentes + 2 + n + n].strip())
+    num_nuevos = int(lines[num_existentes + 2 + 2 * n].strip())
 
     return {
         "num_existentes": num_existentes,
