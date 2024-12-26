@@ -1,79 +1,76 @@
-/* 
-Integrantes:
-Nicolas Mauricio Rojas - 2259460
-Víctor Manuel Hernandez - 2259520
-Esteban Alexander Revelo - 2067507
-*/
+% Parámetros de entrada
+int: num_existentes;
+array[0..num_existentes-1, 0..1] of int: ubicaciones_existentes;
+int: n;
+array[0..n-1, 0..n-1] of int: segmento_poblacion;
+array[0..n-1, 0..n-1] of int: entorno_empresarial;
+int: num_nuevos;
 
-% Entrada
-int: n;  % Tamaño de la matriz (0 a n-1)
-array[0..n-1, 0..n-1] of int: segmento_poblacion;  % Matriz de segmentos de población
-array[0..n-1, 0..n-1] of int: entorno_empresarial;  % Matriz del entorno empresarial
-int: num_existentes;  % Número de localizaciones actuales
-array[0..num_existentes-1] of int: x_existente;  % Coordenadas X de las localizaciones actuales
-array[0..num_existentes-1] of int: y_existente;  % Coordenadas Y de las localizaciones actuales
-int: num_nuevos;  % Número de nuevas localizaciones
 
-% Variables
-array[0..num_nuevos-1] of var 0..n-1: x_nuevo;  % Coordenadas X de las nuevas localizaciones
-array[0..num_nuevos-1] of var 0..n-1: y_nuevo;  % Coordenadas Y de las nuevas localizaciones
+array[0..num_nuevos-1, 0..1] of var 0..n-1: ubicaciones_nuevas;
 
-% Variables para almacenar las sumas
-array[0..num_nuevos-1] of var int: suma_segmento;  % Suma de segmentos de población alrededor de cada nueva localización
-array[0..num_nuevos-1] of var int: suma_entorno;  % Suma del entorno empresarial alrededor de cada nueva localización
+int: ganancia_sin_nuevas = sum([let {
+    set of int: x_rango = max(0, ubicaciones_existentes[i, 1]-1)..min(n-1, ubicaciones_existentes[i, 1]+1),
+    set of int: y_rango = max(0, ubicaciones_existentes[i, 0]-1)..min(n-1, ubicaciones_existentes[i, 0]+1)
+} in
+    sum([segmento_poblacion[x, y] + entorno_empresarial[x, y] | x in x_rango, y in y_rango])
+| i in 0..num_existentes-1]);
+
+var int: ganancia_total = sum([let {
+    var set of int: x_rango = max(0, ubicaciones_nuevas[i, 1]-1)..min(n-1, ubicaciones_nuevas[i, 1]+1),
+    var set of int: y_rango = max(0, ubicaciones_nuevas[i, 0]-1)..min(n-1, ubicaciones_nuevas[i, 0]+1)
+} in
+    sum([segmento_poblacion[x, y] + entorno_empresarial[x, y] | x in x_rango, y in y_rango])
+| i in 0..num_nuevos-1]) + sum([let {
+    set of int: x_rango = max(0, ubicaciones_existentes[i, 1]-1)..min(n-1, ubicaciones_existentes[i, 1]+1),
+    set of int: y_rango = max(0, ubicaciones_existentes[i, 0]-1)..min(n-1, ubicaciones_existentes[i, 0]+1)
+} in
+    sum([segmento_poblacion[x, y] + entorno_empresarial[x, y] | x in x_rango, y in y_rango])
+| i in 0..num_existentes-1]);
 
 % Restricciones
-constraint forall(i in 0..num_nuevos-1)(
-    suma_segmento[i] = sum(dx in -1..1, dy in -1..1 where
-        x_nuevo[i] + dx >= 0 /\ x_nuevo[i] + dx < n /\
-        y_nuevo[i] + dy >= 0 /\ y_nuevo[i] + dy < n)
-        (segmento_poblacion[x_nuevo[i] + dx, y_nuevo[i] + dy]) /\
-    
-    suma_entorno[i] = sum(dx in -1..1, dy in -1..1 where
-        x_nuevo[i] + dx >= 0 /\ x_nuevo[i] + dx < n /\
-        y_nuevo[i] + dy >= 0 /\ y_nuevo[i] + dy < n)
-        (entorno_empresarial[x_nuevo[i] + dx, y_nuevo[i] + dy]) /\
-    
-    suma_segmento[i] >= 25 /\  % Restricción de suma mínima de segmentos de población
-    suma_entorno[i] >= 20  % Restricción de suma mínima del entorno empresarial
-);
+constraint
+    forall(new_loc in 0..num_nuevos-1, existing_loc in 0..num_existentes-1) (
+        abs(ubicaciones_nuevas[new_loc, 0] - ubicaciones_existentes[existing_loc, 0]) > 1 \/
+        abs(ubicaciones_nuevas[new_loc, 1] - ubicaciones_existentes[existing_loc, 1]) > 1
+    );
 
-% Restricción para evitar que nuevas localizaciones estén demasiado cerca entre sí
-constraint forall(i, j in 0..num_nuevos-1 where i < j)(
-    abs(x_nuevo[i] - x_nuevo[j]) > 1 \/
-    abs(y_nuevo[i] - y_nuevo[j]) > 1
-);
+constraint
+    forall(new_loc in 0..num_nuevos-1) (
+        let {
+            var set of int: x_rango = max(0, ubicaciones_nuevas[new_loc, 1]-1)..min(n-1, ubicaciones_nuevas[new_loc, 1]+1),
+            var set of int: y_rango = max(0, ubicaciones_nuevas[new_loc, 0]-1)..min(n-1, ubicaciones_nuevas[new_loc, 0]+1)
+        } in
+            sum([segmento_poblacion[i, j] | i in x_rango, j in y_rango]) >= 25
+    );
 
-% Restricción para evitar que nuevas localizaciones estén demasiado cerca de las existentes
-constraint forall(i in 0..num_nuevos-1)(
-    forall(j in 0..num_existentes-1)(
-        abs(x_nuevo[i] - x_existente[j]) > 1 \/
-        abs(y_nuevo[i] - y_existente[j]) > 1
-    )
-);
+constraint
+    forall(new_loc in 0..num_nuevos-1) (
+        let {
+            var set of int: x_rango = max(0, ubicaciones_nuevas[new_loc, 1]-1)..min(n-1, ubicaciones_nuevas[new_loc, 1]+1),
+            var set of int: y_rango = max(0, ubicaciones_nuevas[new_loc, 0]-1)..min(n-1, ubicaciones_nuevas[new_loc, 0]+1)
+        } in
+            sum([entorno_empresarial[i, j] | i in x_rango, j in y_rango]) >= 20
+    );
 
-% Función objetivo
-var int: ganancia_sin_nuevas = sum(j in 0..num_existentes-1)(
-    sum(dx in -1..1, dy in -1..1 where
-        x_existente[j] + dx >= 0 /\ x_existente[j] + dx < n /\
-        y_existente[j] + dy >= 0 /\ y_existente[j] + dy < n)
-        (segmento_poblacion[x_existente[j] + dx, y_existente[j] + dy] +
-         entorno_empresarial[x_existente[j] + dx, y_existente[j] + dy])
-);
+constraint
+    forall(i in 0..num_nuevos-1, j in 0..num_nuevos-1 where i != j) (
+        abs(ubicaciones_nuevas[i, 0] - ubicaciones_nuevas[j, 0]) > 1 \/
+        abs(ubicaciones_nuevas[i, 1] - ubicaciones_nuevas[j, 1]) > 1 \/
+        (abs(ubicaciones_nuevas[i, 0] - ubicaciones_nuevas[j, 0]) + abs(ubicaciones_nuevas[i, 1] - ubicaciones_nuevas[j, 1]) > 1)
+    );
 
-var int: ganancia_total = ganancia_sin_nuevas + sum(i in 0..num_nuevos-1)(
-    suma_segmento[i] + suma_entorno[i]
-);
+constraint
+    forall(i in 0..num_nuevos-1, j in 0..num_nuevos-1 where i != j) (
+        ubicaciones_nuevas[i, 0] != ubicaciones_nuevas[j, 0] \/ ubicaciones_nuevas[i, 1] != ubicaciones_nuevas[j, 1]
+    );
 
-% Resolver maximizando la ganancia total
 solve maximize ganancia_total;
 
 % Salida
 output [
-    show(ganancia_sin_nuevas), "\n",  % Ganancia sin nuevas localizaciones
-    show(ganancia_total), "\n",       % Ganancia con nuevas localizaciones
-    % Coordenadas de localizaciones existentes, una por línea
-    concat([ show(x_existente[i]) ++ " " ++ show(y_existente[i]) ++ "\n" | i in 0..num_existentes-1 ]),
-    % Coordenadas de localizaciones nuevas, una por línea
-    concat([ show(x_nuevo[i]) ++ " " ++ show(y_nuevo[i]) ++ "\n" | i in 0..num_nuevos-1 ])
+    show(ganancia_sin_nuevas), "\n",
+    show(ganancia_total), "\n",
+    concat([ show(ubicaciones_existentes[i, 0]) ++ " " ++ show(ubicaciones_existentes[i, 1]) ++ "\n" | i in 0..num_existentes-1 ]),
+    concat([ show(ubicaciones_nuevas[i, 0]) ++ " " ++ show(ubicaciones_nuevas[i, 1]) ++ "\n" | i in 0..num_nuevos-1 ])
 ];

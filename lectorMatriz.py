@@ -1,50 +1,38 @@
-"""
-Integrantes:
-Nicolas Mauricio Rojas - 2259460
-Víctor Manuel Hernandez - 2259520
-Esteban Alexander Revelo - 2067507
-"""
-
 def leer_entrada(input):
-    
-    # Abrimos el archivo de entrada en modo lectura
     with open(input, 'r') as file:
         lines = file.readlines()
 
-    # Obtenemos el número de puntos existentes desde la primera línea
+    # Número de localizaciones existentes
     num_existentes = int(lines[0].strip())
-    x_existente = []  
-    y_existente = []
 
-    # Procesamos las coordenadas de los puntos existentes
+    # Coordenadas de localizaciones existentes
+    ubicaciones_existentes = []
     for i in range(1, num_existentes + 1):
         x, y = map(int, lines[i].split())
-        x_existente.append(x)  
-        y_existente.append(y)  
+        ubicaciones_existentes.append([x, y])  # Guarda como lista bidimensional
 
-    # Leemos el número de segmentos de población
+    # Tamaño de la matriz
     n = int(lines[num_existentes + 1].strip())
 
-    segmento_poblacion = []  
-    # Procesamos los datos de los segmentos de población
+    # Matriz de segmento de población
+    segmento_poblacion = []
     for line in lines[num_existentes + 2:num_existentes + 2 + n]:
         segmento_poblacion.append(list(map(int, line.strip().split())))
 
-    entorno_empresarial = []  
-    # Procesamos los datos del entorno empresarial
+    # Matriz de entorno empresarial
+    entorno_empresarial = []
     for line in lines[num_existentes + 2 + n:num_existentes + 2 + 2 * n]:
-        entorno_empresarial.append(list(map(int, line.strip().split()))) 
+        entorno_empresarial.append(list(map(int, line.strip().split())))
 
-    # Leemos el número de nuevos puntos desde el archivo
+    # Número de nuevas localizaciones
     num_nuevos = int(lines[num_existentes + 2 + 2 * n].strip())
 
-    # Retornamos un diccionario con todos los datos leídos
+    # Devuelve un diccionario compatible con el modelo
     return {
-        "num_existentes": num_existentes,  # Número de puntos existentes
-        "x_existente": x_existente,  # Coordenadas X de los puntos existentes
-        "y_existente": y_existente,  # Coordenadas Y de los puntos existentes
-        "n": n,  # Número de segmentos de población
-        "segmento_poblacion": segmento_poblacion,  # Datos de los segmentos de población
-        "entorno_empresarial": entorno_empresarial,  # Datos del entorno empresarial
-        "num_nuevos": num_nuevos  # Número de nuevos puntos
+        "num_existentes": num_existentes,
+        "ubicaciones_existentes": ubicaciones_existentes,  # Cambiado a arreglo bidimensional
+        "n": n,
+        "segmento_poblacion": segmento_poblacion,
+        "entorno_empresarial": entorno_empresarial,
+        "num_nuevos": num_nuevos
     }
