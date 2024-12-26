@@ -218,11 +218,11 @@ class InterfazApp:
         # Dibujar puntos existentes y nuevos en el gráfico
         ubicaciones_existentes = data["ubicaciones_existentes"]
         for loc in ubicaciones_existentes:
-            self.ax.scatter(loc[1], loc[0], c=self.colors['accent'], label="Existentes", s=100)
+            self.ax.scatter(loc[0], loc[1], c=self.colors['accent'], label="Existentes", s=100)
 
         ubicaciones_nuevas = result["ubicaciones_nuevas"]
         for loc in ubicaciones_nuevas:
-            self.ax.scatter(loc[1], loc[0], c=self.colors['highlight'], label="Nuevos", s=100)
+            self.ax.scatter(loc[0], loc[1], c=self.colors['highlight'], label="Nuevos", s=100)
 
         self.ax.legend(facecolor=self.colors['bg'], labelcolor=self.colors['text'])
         self.canvas.draw()
