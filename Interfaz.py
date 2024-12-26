@@ -161,6 +161,10 @@ class InterfazApp:
         self.root.update_idletasks()
 
         try:
+            # Limpiar la gráfica anterior
+            self.ax.clear()
+            self.canvas.draw()
+
             # Leer los datos del archivo de entrada
             data = leer_entrada(self.input_file)
 
