@@ -1,19 +1,26 @@
+/* 
+Integrantes:
+Nicolas Mauricio Rojas - 2259460
+Víctor Manuel Hernandez - 2259520
+Esteban Alexander Revelo - 2067507
+*/
+
 % Entrada
 int: n;  % Tamaño de la matriz (0 a n-1)
-array[0..n-1, 0..n-1] of int: segmento_poblacion;
-array[0..n-1, 0..n-1] of int: entorno_empresarial;
+array[0..n-1, 0..n-1] of int: segmento_poblacion;  % Matriz de segmentos de población
+array[0..n-1, 0..n-1] of int: entorno_empresarial;  % Matriz del entorno empresarial
 int: num_existentes;  % Número de localizaciones actuales
-array[0..num_existentes-1] of int: x_existente;
-array[0..num_existentes-1] of int: y_existente;
+array[0..num_existentes-1] of int: x_existente;  % Coordenadas X de las localizaciones actuales
+array[0..num_existentes-1] of int: y_existente;  % Coordenadas Y de las localizaciones actuales
 int: num_nuevos;  % Número de nuevas localizaciones
 
 % Variables
-array[0..num_nuevos-1] of var 0..n-1: x_nuevo;
-array[0..num_nuevos-1] of var 0..n-1: y_nuevo;
+array[0..num_nuevos-1] of var 0..n-1: x_nuevo;  % Coordenadas X de las nuevas localizaciones
+array[0..num_nuevos-1] of var 0..n-1: y_nuevo;  % Coordenadas Y de las nuevas localizaciones
 
 % Variables para almacenar las sumas
-array[0..num_nuevos-1] of var int: suma_segmento;
-array[0..num_nuevos-1] of var int: suma_entorno;
+array[0..num_nuevos-1] of var int: suma_segmento;  % Suma de segmentos de población alrededor de cada nueva localización
+array[0..num_nuevos-1] of var int: suma_entorno;  % Suma del entorno empresarial alrededor de cada nueva localización
 
 % Restricciones
 constraint forall(i in 0..num_nuevos-1)(
@@ -27,15 +34,17 @@ constraint forall(i in 0..num_nuevos-1)(
         y_nuevo[i] + dy >= 0 /\ y_nuevo[i] + dy < n)
         (entorno_empresarial[x_nuevo[i] + dx, y_nuevo[i] + dy]) /\
     
-    suma_segmento[i] >= 25 /\
-    suma_entorno[i] >= 20
+    suma_segmento[i] >= 25 /\  % Restricción de suma mínima de segmentos de población
+    suma_entorno[i] >= 20  % Restricción de suma mínima del entorno empresarial
 );
 
+% Restricción para evitar que nuevas localizaciones estén demasiado cerca entre sí
 constraint forall(i, j in 0..num_nuevos-1 where i < j)(
     abs(x_nuevo[i] - x_nuevo[j]) > 1 \/
     abs(y_nuevo[i] - y_nuevo[j]) > 1
 );
 
+% Restricción para evitar que nuevas localizaciones estén demasiado cerca de las existentes
 constraint forall(i in 0..num_nuevos-1)(
     forall(j in 0..num_existentes-1)(
         abs(x_nuevo[i] - x_existente[j]) > 1 \/
@@ -56,6 +65,7 @@ var int: ganancia_total = ganancia_sin_nuevas + sum(i in 0..num_nuevos-1)(
     suma_segmento[i] + suma_entorno[i]
 );
 
+% Resolver maximizando la ganancia total
 solve maximize ganancia_total;
 
 % Salida
